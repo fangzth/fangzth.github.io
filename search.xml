@@ -4,7 +4,57 @@
   
     
     <entry>
-      <title>A04_Learning_from_images</title>
+      <title>2022年终总结</title>
+      <link href="/2022/12/31/2022%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/"/>
+      <url>/2022/12/31/2022%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</url>
+      
+        <content type="html"><![CDATA[<h3 id="2022年总结"><a href="#2022年总结" class="headerlink" title="2022年总结"></a>2022年总结</h3><hr><p>2023年已经过去10天了。想来回家也有5天了，是时候补上去年该写的年终总结了。</p><p>这一年以来，经历 了有生以来最为魔幻的一年。前前后后经历了两次完全封校，国内其他地方更是在疫情防控中出现了一些离谱的事件，防疫政策也千变万化，可以说2022年完全是在疫情笼罩下艰难度过的一年。此外，国内外局势先瞬息万变，战争离我们并不遥远。这些让我对我们所生活的这个世界既痛恨又珍惜。</p><p>之前在个人评价里面对这一年以来的工作做了一个总结。就按部就班生活着，主要完成了导师交代的五院实习工作、一院的主动温控项目，并顺利通过了博资考。其于时间就在完成课题组内的一些杂活，好像也没干什么让自己记忆犹新的事。博士一年的生涯就这样过去了，尤其在课题和学术方面基本没有任何进展，这着实让人心焦。</p><p>再来说说好的一方面吧，这一年也并不是在摆烂中度过。除了完成既定的科研任务外，抽出了许多业余时间对自己进行了补充。例如，学习了CS106b、深度学习等一些课程，坚持体育锻炼，提高了健康意识等。经历了两位博士师兄的毕业，学到了很多，也感受到了博士毕业的压力。这一年的锻炼也使我成长了许多，在课题组内需要承担的责任越来越大，与导师交流时的心态也发生了变化，学会更多的去独立思考一些事情。但是也存在许多待改进的地方：</p><ul><li>想做的事，就立即去做，不能浪费时间在想做上，做行动上的巨人</li><li>要以主人公的姿态看待发生在自己身上的事，不能畏首畏尾</li><li>提高对团队的领导和捏合能力，现在课题组氛围营造得并不好</li><li>遇到问题不能先想到的是抱怨、追责，要先解决问题</li><li>得要开始学习待人接物，以前总是嗤之以鼻，但这才是工作中安身立命之本</li></ul><p>随着年龄的增大，一些之前觉得很遥远的事也逐渐逼近。老婆今年也顺利毕业，在凯里找了一份工作。和她的感情一如既往的好，今年吵架生气的次数也很少，只是买车、订婚、结婚这些事也得开始考虑了。</p><p>今日事，今日毕。现在，终于可以给这魔幻的2022年画上了句号。</p><p>2023年需要改变自己这个破拖延症，到现在要写的专利也还没有眉目，接下来几天得集中把这事完结了。</p><hr><h4 id="2023年目标"><a href="#2023年目标" class="headerlink" title="2023年目标"></a>2023年目标</h4><ul><li><p><input disabled="" type="checkbox"> 完成两项专利的申请</p></li><li><p><input disabled="" type="checkbox"> 发表1篇SCI</p></li><li><p><input disabled="" type="checkbox"> 通过雅思考试</p></li><li><p><input disabled="" type="checkbox"> 申请国外交流项目</p></li><li><p><input disabled="" type="checkbox"> 参加半马</p></li><li><p><input disabled="" type="checkbox"> 顺利通过开题</p></li><li><p><input disabled="" type="checkbox"> 订婚❤</p></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 科研总结 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 心得体会 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>A05_Using convolutions to generalize</title>
+      <link href="/2022/12/26/A05-Using-convolutions-to-generalize/"/>
+      <url>/2022/12/26/A05-Using-convolutions-to-generalize/</url>
+      
+        <content type="html"><![CDATA[<h2 id="Using-convolutions-to-generalize"><a href="#Using-convolutions-to-generalize" class="headerlink" title="Using convolutions to generalize"></a>Using convolutions to generalize</h2><h3 id="1-Convolution"><a href="#1-Convolution" class="headerlink" title="1 Convolution"></a>1 Convolution</h3>]]></content>
+      
+      
+      <categories>
+          
+          <category> Deep Learning </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Learning </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>A04 Learning from images</title>
       <link href="/2022/11/26/A04-Learning-from-images/"/>
       <url>/2022/11/26/A04-Learning-from-images/</url>
       
@@ -29,7 +79,7 @@
     
     
     <entry>
-      <title>A03_Using_a_Network_to_fit_the_data</title>
+      <title>A03_Using a Network to fit the data</title>
       <link href="/2022/11/24/A03-Using-a-Network-to-fit-the-data/"/>
       <url>/2022/11/24/A03-Using-a-Network-to-fit-the-data/</url>
       
