@@ -1,0 +1,241 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>03-Back-Propagation | 小方 の Blogs</title><meta name="keywords" content="刘二大人学习笔记"><meta name="author" content="fangzz"><meta name="copyright" content="fangzz"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="反向传播算法BP 对于简单线性模型$y &#x3D; x* \omega$，将其看作简单神经网络。神经网络的训练过程即为权重$\omega \ $的更新，更新$\omega$需要计算损失函数loss的偏导数，参考梯度下降法。 对于简单模型，存在解析式，存在计算公式。对于下图中的复杂计算模型，存在多个权重，解析式复杂。 提出：将复杂网络看作计算图，构建一种能够在图中传播梯度的算法，再根据链式法则求出">
+<meta property="og:type" content="article">
+<meta property="og:title" content="03-Back-Propagation">
+<meta property="og:url" content="http://example.com/2022/09/12/03-Back-Propagation/index.html">
+<meta property="og:site_name" content="小方 の Blogs">
+<meta property="og:description" content="反向传播算法BP 对于简单线性模型$y &#x3D; x* \omega$，将其看作简单神经网络。神经网络的训练过程即为权重$\omega \ $的更新，更新$\omega$需要计算损失函数loss的偏导数，参考梯度下降法。 对于简单模型，存在解析式，存在计算公式。对于下图中的复杂计算模型，存在多个权重，解析式复杂。 提出：将复杂网络看作计算图，构建一种能够在图中传播梯度的算法，再根据链式法则求出">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/Article_cover.jpg">
+<meta property="article:published_time" content="2022-09-11T23:51:12.000Z">
+<meta property="article:modified_time" content="2022-09-17T14:36:46.006Z">
+<meta property="article:author" content="fangzz">
+<meta property="article:tag" content="刘二大人学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/Article_cover.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/09/12/03-Back-Propagation/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '03-Back-Propagation',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-09-17 22:36:46'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/SpongeBob.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">27</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/Article_cover.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">小方 の Blogs</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">03-Back-Propagation</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-09-11T23:51:12.000Z" title="发表于 2022-09-12 07:51:12">2022-09-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-09-17T14:36:46.006Z" title="更新于 2022-09-17 22:36:46">2022-09-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Machine-Learning/">Machine Learning</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="03-Back-Propagation"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h3 id="反向传播算法BP"><a href="#反向传播算法BP" class="headerlink" title="反向传播算法BP"></a>反向传播算法BP</h3><ul>
+<li>对于简单线性模型$y &#x3D; x* \omega$，将其看作简单神经网络。神经网络的训练过程即为权重$\omega \ $的更新，更新$\omega$需要计算损失函数loss的偏导数，参考梯度下降法。</li>
+<li>对于简单模型，存在解析式，存在计算公式。对于下图中的复杂计算模型，存在多个权重，解析式复杂。</li>
+<li>提出：将复杂网络看作计算图，构建一种能够在图中传播梯度的算法，再根据链式法则求出梯度——BP。</li>
+<li>线性模型可以进行化简，多层也可化简为单层。为了增加模型复杂度，可对每层的输出增加一个非线性变换函数。</li>
+</ul>
+<p><img src="/assets/image-20220912143405809.png" alt="image-20220912143405809"></p>
+<h3 id="反向传播过程"><a href="#反向传播过程" class="headerlink" title="反向传播过程"></a>反向传播过程</h3><ul>
+<li>前馈(Forward)：从神经元某处x（输入或者中间层）经过函数$f(x,\omega)$计算输出值z，再计算损失值loss的过程，在此过程中，计算模块回计算并储存$\frac{\partial z}{\partial x} $和$\frac{\partial z}{\partial \omega} $的值。</li>
+<li>反向(Backward)：求出loss后，该层神经元会将$\frac{\partial L}{\partial z}$的值反向传播给上一层神经元，再与前馈计算中所储存的偏导数相乘，即可得到$\frac{\partial L}{\partial \omega}$，可以用于$\omega$的更新。</li>
+</ul>
+<h3 id="Pytorch中的计算"><a href="#Pytorch中的计算" class="headerlink" title="Pytorch中的计算"></a>Pytorch中的计算</h3><ul>
+<li><p>Tensor：是构建动态计算图的重要组成部分，用于存放数据，可以存放标量、向量、矩阵等。本质是一个类，包括data($\omega$)和grad($\frac{\partial Loss}{\partial \omega}$)两个成员。</p>
+</li>
+<li><p>使用方法：在进行运算时，会将计算对象自动转换成Tensor类型，注意类型。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">imort torch</span><br><span class="line">w = torch.Tensor([1.0])	方括号里为需要储存的数据</span><br><span class="line">w.requires_grad = True  默认不计算梯度，要计算时需要指定打开</span><br><span class="line"></span><br><span class="line">l.backward()	释放计算图，删除计算图中的数据</span><br><span class="line">w.grad.item()	取出data变成一个数值，w.grad也是一个Tensor对象</span><br><span class="line"></span><br><span class="line">w.grad.data.zero()	将梯度数据清零，防止计算L2时累加</span><br></pre></td></tr></table></figure>
+
+<p><em>每调用一次Loss函数都是在构建一个计算图</em></p>
+</li>
+</ul>
+<h3 id="课堂练习"><a href="#课堂练习" class="headerlink" title="课堂练习"></a>课堂练习</h3><ul>
+<li><p>问题描述</p>
+<p>同线性模型中的数据，使用BP算法对x&#x3D;4的结果进行预测</p>
+</li>
+<li><p>代码实现</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line">x_data = [<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>]</span><br><span class="line">y_data = [<span class="number">2.0</span>, <span class="number">4.0</span>, <span class="number">6.0</span>]</span><br><span class="line"></span><br><span class="line">w = torch.Tensor([<span class="number">1.0</span>])</span><br><span class="line">w.requires_grad = <span class="literal">True</span></span><br><span class="line">alpha = <span class="number">0.01</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> x * w</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">loss</span>(<span class="params">x, y</span>):</span><br><span class="line">    y_pred = forward(x)</span><br><span class="line">    <span class="keyword">return</span> (y_pred - y)**<span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;predict (before training)&quot;</span>, <span class="number">4</span>, forward(<span class="number">4</span>).item())</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">100</span>):</span><br><span class="line">    <span class="keyword">for</span> x, y <span class="keyword">in</span> <span class="built_in">zip</span>(x_data, y_data):</span><br><span class="line">        <span class="comment"># forward：计算loss</span></span><br><span class="line">        l = loss(x, y)</span><br><span class="line">        l.backward()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;\tgrad&#x27;</span>, x, y, w.grad.item())</span><br><span class="line">        <span class="comment"># backward：更新w</span></span><br><span class="line">        w.data = w.data - alpha * w.grad.data</span><br><span class="line">        w.grad.data.zero_()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Progress&quot;</span>, epoch, l.item())</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;predict (after training)&quot;</span>, <span class="number">4</span>, forward(<span class="number">4</span>).item())</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="课后作业"><a href="#课后作业" class="headerlink" title="课后作业"></a>课后作业</h3><ul>
+<li>问题描述</li>
+</ul>
+<p><img src="/assets/image-20220912172557849.png" alt="image-20220912172557849"></p>
+<ul>
+<li><p>代码实现</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line">x_data = [<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>]</span><br><span class="line">y_data = [<span class="number">4.0</span>, <span class="number">9.0</span>, <span class="number">16.0</span>]</span><br><span class="line"></span><br><span class="line">w1 = torch.Tensor([<span class="number">2.0</span>])</span><br><span class="line">w1.requires_grad = <span class="literal">True</span></span><br><span class="line">w2 = torch.Tensor([<span class="number">1.0</span>])</span><br><span class="line">w2.requires_grad = <span class="literal">True</span></span><br><span class="line">b = torch.Tensor([<span class="number">2.0</span>])</span><br><span class="line">b.requires_grad = <span class="literal">True</span></span><br><span class="line">alpha = <span class="number">0.01</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> w1 * x**<span class="number">2</span> + w2 * x + b</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">loss</span>(<span class="params">x, y</span>):</span><br><span class="line">    y_pred = forward(x)</span><br><span class="line">    <span class="keyword">return</span> (y_pred - y)**<span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;predict (before training)&quot;</span>, <span class="number">4</span>, forward(<span class="number">4</span>).item())</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1000</span>):</span><br><span class="line">    <span class="keyword">for</span> x, y <span class="keyword">in</span> <span class="built_in">zip</span>(x_data, y_data):</span><br><span class="line">        <span class="comment"># forward：计算loss</span></span><br><span class="line">        l = loss(x, y)</span><br><span class="line">        l.backward()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;\tgrad&#x27;</span>, x, y, w1.grad.item(), w2.grad.item(), b.grad.item())</span><br><span class="line">        <span class="comment"># backward：更新w</span></span><br><span class="line">        w1.data = w1.data - alpha * w1.grad.data</span><br><span class="line">        w2.data = w2.data - alpha * w2.grad.data</span><br><span class="line">        b.data = b.data - alpha * b.grad.data</span><br><span class="line"></span><br><span class="line">        w1.grad.data.zero_()</span><br><span class="line">        w2.grad.data.zero_()</span><br><span class="line">        b.grad.data.zero_()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Progress&quot;</span>, epoch, l.item())</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;predict (after training)&quot;</span>, <span class="number">4</span>, forward(<span class="number">4</span>).item())</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><em>矩阵计算可参考书籍《The Matrix Cook》</em></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">fangzz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/09/12/03-Back-Propagation/">http://example.com/2022/09/12/03-Back-Propagation/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">小方 の Blogs</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%88%98%E4%BA%8C%E5%A4%A7%E4%BA%BA%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">刘二大人学习笔记</a></div><div class="post_share"><div class="social-share" data-image="/img/Article_cover.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/09/12/04-Linear-Regression/"><img class="prev-cover" src="/img/Article_cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">04-Linear-Regression</div></div></a></div><div class="next-post pull-right"><a href="/2022/09/11/02-Gradient-Desent/"><img class="next-cover" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">02-Gradient-Desent</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/09/08/01-Linear-model/" title="01-Linear-Model"><img class="cover" src="/img/Article_cover.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-09-08</div><div class="title">01-Linear-Model</div></div></a></div><div><a href="/2022/09/15/05-Logistic-Regression/" title="05-Logistic-Regression"><img class="cover" src="/img/Article_cover.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-09-15</div><div class="title">05-Logistic-Regression</div></div></a></div><div><a href="/2022/09/17/06-Multiple-Dimension-Input/" title="06-Multiple-Dimension-Input"><img class="cover" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-09-17</div><div class="title">06-Multiple-Dimension-Input</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/SpongeBob.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">fangzz</div><div class="author-info__description">要努力学习</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">27</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/fangzth" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="/1404409583@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This Blog is used to document my PhD study journey.</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD%E7%AE%97%E6%B3%95BP"><span class="toc-number">1.</span> <span class="toc-text">反向传播算法BP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%AD%E8%BF%87%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">反向传播过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pytorch%E4%B8%AD%E7%9A%84%E8%AE%A1%E7%AE%97"><span class="toc-number">3.</span> <span class="toc-text">Pytorch中的计算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BE%E5%A0%82%E7%BB%83%E4%B9%A0"><span class="toc-number">4.</span> <span class="toc-text">课堂练习</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BE%E5%90%8E%E4%BD%9C%E4%B8%9A"><span class="toc-number">5.</span> <span class="toc-text">课后作业</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/02/22/%E4%B8%93%E5%88%A9%E6%92%B0%E5%86%99%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="专利撰写学习笔记"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="专利撰写学习笔记"/></a><div class="content"><a class="title" href="/2023/02/22/%E4%B8%93%E5%88%A9%E6%92%B0%E5%86%99%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="专利撰写学习笔记">专利撰写学习笔记</a><time datetime="2023-02-22T14:01:17.000Z" title="发表于 2023-02-22 22:01:17">2023-02-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/12/31/2022%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" title="2022年终总结"><img src="/img/Article_cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="2022年终总结"/></a><div class="content"><a class="title" href="/2022/12/31/2022%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" title="2022年终总结">2022年终总结</a><time datetime="2022-12-31T14:58:02.000Z" title="发表于 2022-12-31 22:58:02">2022-12-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/12/26/A05-Using-convolutions-to-generalize/" title="A05_Using convolutions to generalize"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="A05_Using convolutions to generalize"/></a><div class="content"><a class="title" href="/2022/12/26/A05-Using-convolutions-to-generalize/" title="A05_Using convolutions to generalize">A05_Using convolutions to generalize</a><time datetime="2022-12-25T23:33:45.000Z" title="发表于 2022-12-26 07:33:45">2022-12-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/11/26/A04-Learning-from-images/" title="A04 Learning from images"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="A04 Learning from images"/></a><div class="content"><a class="title" href="/2022/11/26/A04-Learning-from-images/" title="A04 Learning from images">A04 Learning from images</a><time datetime="2022-11-25T23:58:37.000Z" title="发表于 2022-11-26 07:58:37">2022-11-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/11/24/A03-Using-a-Network-to-fit-the-data/" title="A03_Using a Network to fit the data"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="A03_Using a Network to fit the data"/></a><div class="content"><a class="title" href="/2022/11/24/A03-Using-a-Network-to-fit-the-data/" title="A03_Using a Network to fit the data">A03_Using a Network to fit the data</a><time datetime="2022-11-24T08:57:40.000Z" title="发表于 2022-11-24 16:57:40">2022-11-24</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/Article_cover.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By fangzz</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
